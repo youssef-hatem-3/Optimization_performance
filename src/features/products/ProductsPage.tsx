@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { LazyLoadImage } from "react-lazy-load-image-component";
 import { useState } from "react";
 import { getProducts } from "../../lib/api";
 import type { Product } from "../../types/models";
@@ -93,6 +94,18 @@ export function ProductsPage() {
       <div className="product-grid">
         {visibleProducts.map((product: Product) => (
           <article key={product.id} className="product-card">
+            <LazyLoadImage
+              className="product-card-image"
+              src={product.imageUrl}
+              alt={product.name}
+              width={320}
+              height={240}
+              threshold={200}
+              placeholder={
+                <span className="product-card-image" aria-hidden="true" />
+              }
+              decoding="async"
+            />
             <span>{product.category}</span>
             <h3>{product.name}</h3>
             <strong>${product.price}</strong>

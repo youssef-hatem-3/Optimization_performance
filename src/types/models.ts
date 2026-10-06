@@ -15,6 +15,7 @@ export interface Product {
   price: number;
   quantity: number;
   rating: number;
+  imageUrl: string;
 }
 export interface Order {
   id: string;

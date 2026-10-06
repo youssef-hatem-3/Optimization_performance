@@ -31,6 +31,7 @@ type DummyUser = {
 type DummyProduct = {
   id: number;
   title: string;
+  thumbnail: string;
   category: string;
   price: number;
   stock: number;
@@ -88,13 +89,17 @@ export async function getProducts(): Promise<Product[]> {
   const response = await api.get<CollectionResponse<DummyProduct, "products">>(
     "/products",
     {
-      params: { limit: 0, select: "id,title,category,price,stock,rating" },
+      params: {
+        limit: 0,
+        select: "id,title,thumbnail,category,price,stock,rating",
+      },
     },
   );
 
   return response.data.products.map((product) => ({
     id: product.id,
     name: product.title,
+    imageUrl: product.thumbnail,
     category: product.category,
     price: product.price,
     quantity: product.stock,

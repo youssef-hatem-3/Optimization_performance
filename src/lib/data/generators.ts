@@ -61,6 +61,7 @@ export const generateProducts = (count = 1000): Product[] =>
       price: Number((9.99 + ((index * 17) % 900)).toFixed(2)),
       quantity: (index * 13) % 120,
       rating: Number((1 + ((index * 7) % 40) / 10).toFixed(1)),
+      imageUrl: `https://dummyjson.com/image/320x240/182238/e7edf8?text=Product+${id}`,
     };
   });
 
