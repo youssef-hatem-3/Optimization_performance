@@ -85,26 +85,49 @@ export async function getUsers(): Promise<User[]> {
   }));
 }
 
-export async function getProducts(): Promise<Product[]> {
+export type ProductsPage = {
+  products: Product[];
+  total: number;
+};
+
+type ProductsPageRequest = {
+  page: number;
+  pageSize: number;
+  sortBy: "price" | "rating";
+  order: "asc" | "desc";
+};
+
+export async function getProducts({
+  page,
+  pageSize,
+  sortBy,
+  order,
+}: ProductsPageRequest): Promise<ProductsPage> {
   const response = await api.get<CollectionResponse<DummyProduct, "products">>(
     "/products",
     {
       params: {
-        limit: 0,
+        limit: pageSize,
+        skip: page * pageSize,
+        sortBy,
+        order,
         select: "id,title,thumbnail,category,price,stock,rating",
       },
     },
   );
 
-  return response.data.products.map((product) => ({
-    id: product.id,
-    name: product.title,
-    imageUrl: product.thumbnail,
-    category: product.category,
-    price: product.price,
-    quantity: product.stock,
-    rating: product.rating,
-  }));
+  return {
+    total: response.data.total,
+    products: response.data.products.map((product) => ({
+      id: product.id,
+      name: product.title,
+      imageUrl: product.thumbnail,
+      category: product.category,
+      price: product.price,
+      quantity: product.stock,
+      rating: product.rating,
+    })),
+  };
 }
 
 export async function getOrders(): Promise<Order[]> {

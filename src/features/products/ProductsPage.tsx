@@ -1,27 +1,28 @@
-import { useQuery } from "@tanstack/react-query";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { useState } from "react";
-import { getProducts } from "../../lib/api";
 import type { Product } from "../../types/models";
+import { useProducts, type ProductSortBy } from "./useProducts";
+
+const PRODUCTS_PER_PAGE = 12;
 
 export function ProductsPage() {
-  const { data: products = [], isLoading } = useQuery({
-    queryKey: ["products"],
-    queryFn: getProducts,
-  });
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
-  const [sortBy, setSortBy] = useState<"price" | "rating">("price");
-  // PERFORMANCE PRACTICE: all derived values and sorting are recalculated on every render, without memoization.
-  const visibleProducts = products
-    .filter(
-      (product) =>
-        product.name.toLowerCase().includes(search.toLowerCase()) &&
-        (category === "all" || product.category === category),
-    )
-    .sort((a, b) =>
-      sortBy === "price" ? a.price - b.price : b.rating - a.rating,
-    );
+  const [sortBy, setSortBy] = useState<ProductSortBy>("price");
+  const [page, setPage] = useState(0);
+  const { data, isLoading, isFetching } = useProducts({
+    page,
+    pageSize: PRODUCTS_PER_PAGE,
+    sortBy,
+  });
+  const products = data?.products ?? [];
+  const totalPages = Math.max(1, Math.ceil((data?.total ?? 0) / PRODUCTS_PER_PAGE));
+  // PERFORMANCE PRACTICE: filtering and derived values are recalculated on every render.
+  const visibleProducts = products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(search.toLowerCase()) &&
+      (category === "all" || product.category === category),
+  );
   const averagePrice =
     products.reduce((sum, product) => sum + product.price, 0) /
     (products.length || 1);
@@ -43,7 +44,7 @@ export function ProductsPage() {
         <div>
           <p className="eyebrow">Derived state</p>
           <h2>
-            Products <span>{visibleProducts.length.toLocaleString()}</span>
+            Products <span>{(data?.total ?? 0).toLocaleString()} total</span>
           </h2>
           <p>
             Practice spotting derived work that should not need every render.
@@ -67,12 +68,18 @@ export function ProductsPage() {
       <div className="toolbar">
         <input
           value={search}
-          onChange={(event) => setSearch(event.target.value)}
+          onChange={(event) => {
+            setSearch(event.target.value);
+            setPage(0);
+          }}
           placeholder="Search products…"
         />
         <select
           value={category}
-          onChange={(event) => setCategory(event.target.value)}
+          onChange={(event) => {
+            setCategory(event.target.value);
+            setPage(0);
+          }}
         >
           <option value="all">All categories</option>
           {Object.keys(byCategory)
@@ -83,9 +90,10 @@ export function ProductsPage() {
         </select>
         <select
           value={sortBy}
-          onChange={(event) =>
-            setSortBy(event.target.value as "price" | "rating")
-          }
+          onChange={(event) => {
+            setSortBy(event.target.value as ProductSortBy);
+            setPage(0);
+          }}
         >
           <option value="price">Price</option>
           <option value="rating">Rating</option>
@@ -114,6 +122,23 @@ export function ProductsPage() {
             </p>
           </article>
         ))}
+      </div>
+      <div className="pagination">
+        <button
+          onClick={() => setPage((currentPage) => currentPage - 1)}
+          disabled={page === 0 || isFetching}
+        >
+          Previous
+        </button>
+        <span>
+          Page {page + 1} of {totalPages}
+        </span>
+        <button
+          onClick={() => setPage((currentPage) => currentPage + 1)}
+          disabled={!data || page >= totalPages - 1 || isFetching}
+        >
+          Next
+        </button>
       </div>
     </>
   );

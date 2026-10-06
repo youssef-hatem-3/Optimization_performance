@@ -44,7 +44,11 @@ function NoisyStats({
 export function DashboardPage() {
   const [refreshes, setRefreshes] = useState(0);
   const users = useQuery({ queryKey: ["users"], queryFn: getUsers });
-  const products = useQuery({ queryKey: ["products"], queryFn: getProducts });
+  const products = useQuery({
+    queryKey: ["products", "summary"],
+    queryFn: () =>
+      getProducts({ page: 0, pageSize: 1, sortBy: "price", order: "asc" }),
+  });
   const orders = useQuery({ queryKey: ["orders"], queryFn: getOrders });
   const { notifications } = useNotifications();
   // PERFORMANCE PRACTICE: This intentionally expensive calculation runs during every parent render.
@@ -80,7 +84,7 @@ export function DashboardPage() {
         />
         <SummaryCard
           label="Total products"
-          value={products.data!.length}
+          value={products.data!.total}
           hint="Inventory catalog"
           accent="purple"
         />
