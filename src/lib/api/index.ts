@@ -58,7 +58,7 @@ const orderStatuses: Order["status"][] = [
   "cancelled",
 ];
 
-function getUserStatus(role: DummyUser["role"]): Status {
+function getUserStatus(role: DummyUser["role"]): Status { // here role: DummyUser["role"] means that the value that will return it will be one of role property in DummyUser Type
   if (role === "admin") return "active";
   if (role === "moderator") return "pending";
   return "inactive";

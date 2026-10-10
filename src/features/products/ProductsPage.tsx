@@ -1,15 +1,27 @@
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { debounce } from "../../lib/utils";
 import type { Product } from "../../types/models";
 import { useProducts, type ProductSortBy } from "./useProducts";
 
 const PRODUCTS_PER_PAGE = 12;
 
 export function ProductsPage() {
+  const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [sortBy, setSortBy] = useState<ProductSortBy>("price");
   const [page, setPage] = useState(0);
+  const updateSearch = useMemo(
+    () => debounce((value: string) => setSearch(value), 300),
+    [],
+  );
+
+  useEffect(() => {
+    updateSearch(searchInput);
+    return updateSearch.cancel;
+  }, [searchInput, updateSearch]);
+
   const { data, isLoading, isFetching } = useProducts({
     page,
     pageSize: PRODUCTS_PER_PAGE,
@@ -67,9 +79,9 @@ export function ProductsPage() {
       </section>
       <div className="toolbar">
         <input
-          value={search}
+          value={searchInput}
           onChange={(event) => {
-            setSearch(event.target.value);
+            setSearchInput(event.target.value);
             setPage(0);
           }}
           placeholder="Search products…"
