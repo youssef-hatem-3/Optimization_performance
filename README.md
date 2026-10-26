@@ -16,6 +16,14 @@ npm run lint
 npm run build
 ```
 
+## Local Spring Boot backend
+
+The app currently uses DummyJSON as a read-only data source. See [BACKEND_API.md](BACKEND_API.md) for the complete local Spring Boot compatibility contract, DTOs, endpoints, query parameters, CORS setup, and frontend connection step.
+
+## Project brief
+
+See [PROJECT_BRIEF.md](PROJECT_BRIEF.md) for a concise explanation of the website's purpose, routes, data flow, architecture, and implementation constraints. It is suitable as context for an AI assistant or a new contributor.
+
 ## Project structure
 
 ```text
